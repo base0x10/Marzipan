@@ -56,11 +56,11 @@ constexpr struct instruction initial_instr {
 // simpilier spec for debugging emulator behavior
 #ifdef DEBUG_SPEC
 
-constexpr int core_size             = 1024;
+constexpr int core_size             = 40;
 constexpr int cycles_before_tie     = 1000;
-constexpr int max_warrior_size      = 32;
+constexpr int max_warrior_size      = 10;
 constexpr int max_num_tasks         = 32;
-constexpr int min_separation        = 32;
+constexpr int min_separation        = 10;
 constexpr bool const_separation     = true;    // use min_sep as separation rather than random
 
 constexpr struct instruction initial_instr {

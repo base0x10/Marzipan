@@ -39,7 +39,7 @@ int main () {
         warrior2[i] = move;
     }
 
-    emulator e = emulator(64, warrior1, warrior2);
+    emulator e = emulator(10, warrior1, warrior2);
 
     e.print();
 }
