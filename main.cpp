@@ -1,19 +1,19 @@
+// Copyright 2018 Joseph Espy MIT LICENSE jespy@gwu.edu
+
 #include <iostream>
 #include <array>
 
-#include "emulator.h"
-#include "redcode.h"
+#include "./emulator.h"
+#include "./redcode.h"
+#include "./warrior.h"
 
-int main () {
+int main() {
+    std::cout << "begin exeuction of marzipan" << std::endl;
 
-    std::cout<<"begin exeuction of marzipan"<<std::endl;
+    Warrior warrior1 = Warrior(0);
+    Warrior warrior2 = Warrior(0);
 
-    std::array<instruction, max_warrior_size> warrior1;
-    warrior1.fill(initial_instr);
-    std::array<instruction, max_warrior_size> warrior2;
-    warrior2.fill(initial_instr);
-
-    struct instruction move {
+    struct Instruction move {
         MOV,
         AB,
         IMMEDIATE,
@@ -22,7 +22,7 @@ int main () {
         0
     };
 
-    struct instruction add {
+    struct Instruction add {
         ADD,
         AB,
         IMMEDIATE,
@@ -31,15 +31,17 @@ int main () {
         0
     };
 
-    for(int i = 0 ; i < 10 ; i++) {
-        warrior1[i] = add;
+    for (int i = 0 ; i < 10 ; i++) {
+        warrior1.code[i] = add;
     }
 
-    for(int i = 0 ; i < 10 ; i++) {
-        warrior2[i] = move;
+    for (int i = 0 ; i < 10 ; i++) {
+        warrior2.code[i] = move;
     }
 
-    emulator e = emulator(10, warrior1, warrior2);
+    Emulator e;
+
+    e.load_warriors(10, warrior1, warrior2);
 
     e.print();
 }

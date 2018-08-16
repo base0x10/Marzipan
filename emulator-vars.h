@@ -1,5 +1,8 @@
-#include "redcode.h"
-#pragma once
+// Copyright 2018 Joseph Espy MIT LICENSE jespy@gwu.edu
+#ifndef MARZIPAN_EMULATOR_VARS_H_
+#define MARZIPAN_EMULATOR_VARS_H_
+
+#include "./redcode.h"
 
 /* ~~~ THINGS YOU CAN CONFIGURE ~~~ */
 
@@ -21,7 +24,9 @@ constexpr int cycles_before_tie     = 80000;
 constexpr int max_warrior_size      = 100;
 constexpr int max_num_tasks         = 8000;
 constexpr int min_separation        = 100;
-constexpr bool const_separation     = false;    // use min_sep as separation rather than random
+
+// use min_sep as separation rather than random
+constexpr bool const_separation     = false;
 
 constexpr struct instruction initial_instr {
         DAT,
@@ -39,9 +44,11 @@ constexpr struct instruction initial_instr {
 constexpr int core_size             = 8192;
 constexpr int cycles_before_tie     = 100000;
 constexpr int max_warrior_size      = 300;
-constexpr int max_num_tasks         = 64; 
+constexpr int max_num_tasks         = 64;
 constexpr int min_separation        = 300;
-constexpr bool const_separation     = false;    // use min_sep as separation rather than random
+
+// use min_sep as separation rather than random
+constexpr bool const_separation     = false;
 
 constexpr struct instruction initial_instr {
         DAT,
@@ -61,9 +68,11 @@ constexpr int cycles_before_tie     = 1000;
 constexpr int max_warrior_size      = 10;
 constexpr int max_num_tasks         = 32;
 constexpr int min_separation        = 10;
-constexpr bool const_separation     = true;    // use min_sep as separation rather than random
 
-constexpr struct instruction initial_instr {
+// use min_sep as separation rather than random
+constexpr bool const_separation     = true;
+
+constexpr struct Instruction initial_instr {
         DAT,
         F,
         IMMEDIATE,
@@ -79,3 +88,5 @@ constexpr struct instruction initial_instr {
     write_distance                  = core_size;
     warriors                        = 2;
 */
+
+#endif  // MARZIPAN_EMULATOR_VARS_H_

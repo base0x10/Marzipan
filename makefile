@@ -1,4 +1,6 @@
-SRC := emulator.cpp main.cpp visualizer.cpp
+# Copyright 2018 Joseph Espy MIT LICENSE jespy@gwu.edu		
+
+SRC := emulator.cpp main.cpp visualizer.cpp warrior.cpp
 
 OBJDIR = obj
 OBJS = $(SRC:.cpp=.o)

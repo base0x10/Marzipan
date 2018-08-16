@@ -1,23 +1,27 @@
-#pragma once
+// Copyright 2018 Joseph Espy MIT LICENSE jespy@gwu.edu
+#ifndef MARZIPAN_REDCODE_H_
+#define MARZIPAN_REDCODE_H_
 
-enum opcode : char{
-    DAT, // Is there anyway a modifier will have effect here?
-    MOV, // modifiers?
-    ADD, // can take AB or BA?
-    SUB, // can take AB or BA?
-    MUL, // can take AB or BA?
-    DIV, // can take AB or BA?
-    MOD, // can take AB or BA?
-    JMP, // modifiers?
-    JMZ, // A or B?
-    JMN, // A or B?
-    DJN, // DJN does what?
-    CMP, // huh?
-    SLP, // probably takes A or B
-    SPL  // not sure
+#include <stdint.h>
+
+enum Opcode : char{
+    DAT,
+    MOV,
+    ADD,
+    SUB,
+    MUL,
+    DIV,
+    MOD,
+    JMP,
+    JMZ,
+    JMN,
+    DJN,
+    CMP,
+    SLP,
+    SPL
 };
 
-enum modifier : char{
+enum Modifier : char{
     A,
     B,
     AB,
@@ -27,7 +31,7 @@ enum modifier : char{
     I
 };
 
-enum mode : char{
+enum Mode : char{
     IMMEDIATE,      // "#" prefix,
     DIRECT,         // "$" prefix,
 
@@ -46,11 +50,12 @@ enum mode : char{
 };
 
 
-struct instruction {
-    opcode op;
-    modifier mod;
-    mode a_mode;
-    unsigned short a_val;
-    mode b_mode;
-    unsigned short b_val;
+struct Instruction {
+    Opcode op;
+    Modifier mod;
+    Mode a_mode;
+    int16_t a_val;
+    Mode b_mode;
+    int16_t b_val;
 };
+#endif  // MARZIPAN_REDCODE_H_
