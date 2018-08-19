@@ -1,14 +1,13 @@
 // Copyright 2018 Joseph Espy MIT LICENSE jespy@JosephEspy.com
 
-#include "./emulator.h"
-#include "./emulator-vars.h"
-#include "./core.h"
-#include "./warrior.h"
-
 #include <algorithm>
 #include <iostream>
 #include <cassert>
 
+#include "./emulator.h"
+#include "./emulator-vars.h"
+#include "./core.h"
+#include "./warrior.h"
 
 /* 
  * The base emulator class includes most of the fast paths in the system
@@ -27,8 +26,7 @@ int Emulator::run(int steps) {
 }
 
 void Emulator::load_warrior(Warrior w, int offset, int war_num) {
-
-    if(war_num == 1) {
+    if (war_num == 1) {
         core.task_queue_w1.emplace_front(w.start_pos);
     } else if (war_num == 2) {
         core.task_queue_w2.emplace_front(w.start_pos);
@@ -52,7 +50,7 @@ void Emulator::print() {
 }
 
 void Emulator::clear() {
-    //reset task queues
+    // reset task queues
     core.task_queue_w1.clear();
     core.task_queue_w2.clear();
     // reset memory array - this seems to be the most idiomatic way to do it

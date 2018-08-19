@@ -10,7 +10,6 @@
 #include "./core.h"
 
 int main() {
-    
     std::cout << "begin exeuction of marzipan" << std::endl;
 
     Warrior warrior1 = Warrior(0);
@@ -45,7 +44,7 @@ int main() {
     Emulator e;
 
     e.clear();
-    
+
     e.load_warrior(warrior1, 0, 1);
 
     e.load_warrior(warrior2, 20, 2);

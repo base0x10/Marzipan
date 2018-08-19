@@ -9,10 +9,10 @@
  * but Core doesn't dictate policy for interacting with datastructures
  */
 
+#include <forward_list>
+
 #include "./redcode.h"
 #include "./emulator-vars.h"
-
-#include <forward_list>
 
 #define likely(x)      __builtin_expect(!!(x), 1)
 #define unlikely(x)    __builtin_expect(!!(x), 0)
@@ -24,7 +24,6 @@ struct Core {
     std::forward_list<int> task_queue_w2;
 
     Instruction memory[core_size];
-
 };
 
 #endif  // MARZIPAN_CORE_H_
