@@ -1,4 +1,4 @@
-# Copyright 2018 Joseph Espy MIT LICENSE jespy@gwu.edu		
+# Copyright 2018 Joseph Espy MIT LICENSE jespy@JosephEspy.com
 
 SRC := emulator.cpp main.cpp visualizer.cpp warrior.cpp
 

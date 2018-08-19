@@ -1,4 +1,5 @@
-// Copyright 2018 Joseph Espy MIT LICENSE jespy@gwu.edu
+// Copyright 2018 Joseph Espy MIT LICENSE jespy@JosephEspy.com
+
 #ifndef MARZIPAN_EMULATOR_VARS_H_
 #define MARZIPAN_EMULATOR_VARS_H_
 

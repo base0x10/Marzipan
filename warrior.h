@@ -1,4 +1,4 @@
-// Copyright 2018 Joseph Espy MIT LICENSE jespy@gwu.edu
+// Copyright 2018 Joseph Espy MIT LICENSE jespy@JosephEspy.com
 
 #ifndef MARZIPAN_WARRIOR_H_
 #define MARZIPAN_WARRIOR_H_

@@ -1,4 +1,4 @@
-// Copyright 2018 Joseph Espy MIT LICENSE jespy@gwu.edu
+// Copyright 2018 Joseph Espy MIT LICENSE jespy@JosephEspy.com
 
 #include "./warrior.h"
 #include "./redcode.h"

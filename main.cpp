@@ -1,13 +1,16 @@
-// Copyright 2018 Joseph Espy MIT LICENSE jespy@gwu.edu
+// Copyright 2018 Joseph Espy MIT LICENSE jespy@JosephEspy.com
 
 #include <iostream>
 #include <array>
+#include <type_traits>
 
 #include "./emulator.h"
 #include "./redcode.h"
 #include "./warrior.h"
+#include "./core.h"
 
 int main() {
+    
     std::cout << "begin exeuction of marzipan" << std::endl;
 
     Warrior warrior1 = Warrior(0);
@@ -41,7 +44,11 @@ int main() {
 
     Emulator e;
 
-    e.load_warriors(10, warrior1, warrior2);
+    e.clear();
+    
+    e.load_warrior(warrior1, 0, 1);
+
+    e.load_warrior(warrior2, 20, 2);
 
     e.print();
 }
