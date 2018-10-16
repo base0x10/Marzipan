@@ -9,21 +9,26 @@
  * but Core doesn't dictate policy for interacting with datastructures
  */
 
+#include <queue>
 #include <forward_list>
 
 #include "./redcode.h"
-#include "./emulator-vars.h"
-
-#define likely(x)      __builtin_expect(!!(x), 1)
-#define unlikely(x)    __builtin_expect(!!(x), 0)
-#define EMPTY_TASK_QUEUE -1
+#include "../emulator-vars.h"
 
 struct Core {
- public :
-    std::forward_list<int> task_queue_w1;
-    std::forward_list<int> task_queue_w2;
+    std::queue<int16_t> task_queue_w1;
+    std::queue<int16_t> task_queue_w2;
 
     Instruction memory[core_size];
+
+    std::forward_list<int> to_post_increment_a;
+    std::forward_list<int> to_post_increment_b;
+
+
+    // number of the steps that have been executed
+    int counter;
+
+    bool turn_w1;
 };
 
 #endif  // MARZIPAN_CORE_H_

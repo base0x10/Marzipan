@@ -1,20 +1,25 @@
 # Copyright 2018 Joseph Espy MIT LICENSE jespy@JosephEspy.com
 
-SRC := emulator.cpp main.cpp visualizer.cpp warrior.cpp
+SRC := main.cpp visualizer.cpp warrior.cpp
 
 OBJDIR = obj
-OBJS = $(SRC:.cpp=.o)
-OBJ_PATHS = $(addprefix $(OBJDIR)/, $(OBJS))
+OBJS = $(SRC:.cpp=.o) 
+OBJ_PATHS = $(addprefix $(OBJDIR)/, $(OBJS)) optimized-emulator/emu.o
 
 OUTPUT_OPTION = -o $(OBJDIR)/$@
 
 CXXFLAGS = -Wall -Wextra -Werror -std=c++11 -pedantic-errors
 CPPFLAGS = -lstdc++
 
-marzipan : $(SRC:.cpp=.o)
+
+marzipan : $(SRC:.cpp=.o) 
 	$(CC) $(CPPFLAGS) -o marzipan $(OBJ_PATHS)
 
-$(OBJS) : $(SRC)
+$(OBJS) : $(SRC) optimized-emulator/emu.o
+
+optimized-emulator/emu.o:
+	$(MAKE) -C optimized-emulator
 
 clean :
-	rm $(OBJ_PATHS) marzipan
+	$(MAKE) -C optimized-emulator clean 
+	rm $(OBJ_PATHS) marzipanthe 

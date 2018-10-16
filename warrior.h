@@ -5,7 +5,7 @@
 
 #include <array>
 
-#include "./redcode.h"
+#include "optimized-emulator/redcode.h"
 #include "./emulator-vars.h"
 
 class Warrior {

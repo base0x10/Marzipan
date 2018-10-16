@@ -3,8 +3,7 @@
 #ifndef MARZIPAN_EMULATOR_VARS_H_
 #define MARZIPAN_EMULATOR_VARS_H_
 
-#include "./redcode.h"
-
+#include "optimized-emulator/redcode.h"
 /* ~~~ THINGS YOU CAN CONFIGURE ~~~ */
 
 // change to ICWS86 to compile with ICWS86 compatability
@@ -15,6 +14,8 @@ constexpr int num_threads = 1;
 
 // optimize for low-fitness warriors TODO: write documentation on this
 constexpr bool predictive_execution = true;
+
+constexpr bool debug_mode = true;
 
 /* ~~~ THINGS YOU SHOULD NOT CHANGE ~~~ */
 
@@ -29,14 +30,14 @@ constexpr int min_separation        = 100;
 // use min_sep as separation rather than random
 constexpr bool const_separation     = false;
 
-constexpr struct instruction initial_instr {
-        DAT,
-        F,
-        IMMEDIATE,
-        0,
-        IMMEDIATE,
-        0
-    };
+constexpr struct Instruction initial_instr {
+    DAT,
+    F,
+    IMMEDIATE,
+    0,
+    IMMEDIATE,
+    0
+};
 
 #endif
 
@@ -51,14 +52,14 @@ constexpr int min_separation        = 300;
 // use min_sep as separation rather than random
 constexpr bool const_separation     = false;
 
-constexpr struct instruction initial_instr {
-        DAT,
-        F,
-        IMMEDIATE,
-        0,
-        IMMEDIATE,
-        0
-    };
+constexpr struct Instruction initial_instr {
+    DAT,
+    F,
+    IMMEDIATE,
+    0,
+    IMMEDIATE,
+    0
+};
 #endif
 
 // simpilier spec for debugging emulator behavior
@@ -74,17 +75,17 @@ constexpr int min_separation        = 10;
 constexpr bool const_separation     = true;
 
 constexpr struct Instruction initial_instr {
-        DAT,
-        F,
-        IMMEDIATE,
-        0,
-        IMMEDIATE,
-        0
-    };
+    DAT,
+    F,
+    IMMEDIATE,
+    0,
+    IMMEDIATE,
+    0
+};
 
 #endif
 
-/* The following cannot be modified but conform to both KOTH and ICWS86:
+/* The following are not configurable but conform to both KOTH and ICWS86:
     read_distance                   = core_size;
     write_distance                  = core_size;
     warriors                        = 2;

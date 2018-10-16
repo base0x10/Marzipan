@@ -4,10 +4,10 @@
 #include <array>
 #include <type_traits>
 
-#include "./emulator.h"
-#include "./redcode.h"
+#include "optimized-emulator/emulator.h"
+#include "optimized-emulator/redcode.h"
 #include "./warrior.h"
-#include "./core.h"
+#include "optimized-emulator/core.h"
 
 int main() {
     std::cout << "begin exeuction of marzipan" << std::endl;
@@ -17,37 +17,41 @@ int main() {
 
     struct Instruction move {
         MOV,
-        AB,
-        IMMEDIATE,
+        I,
+        DIRECT,
         0,
-        IMMEDIATE,
-        0
+        DIRECT,
+        1
     };
 
-    struct Instruction add {
+    /*struct Instruction add {
         ADD,
         AB,
         IMMEDIATE,
         0,
         IMMEDIATE,
         0
-    };
+    };*/
 
     for (int i = 0 ; i < 10 ; i++) {
-        warrior1.code[i] = add;
+        warrior1.code[i] = move;
     }
 
     for (int i = 0 ; i < 10 ; i++) {
         warrior2.code[i] = move;
     }
 
-    Emulator e;
-
-    e.clear();
+    Emulator e {};
 
     e.load_warrior(warrior1, 0, 1);
 
     e.load_warrior(warrior2, 20, 2);
 
     e.print();
+
+    int output = e.run(0);
+
+    e.print();
+
+    std::cout << output << std::endl;
 }
