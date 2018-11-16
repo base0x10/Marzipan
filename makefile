@@ -1,25 +1,22 @@
-# Copyright 2018 Joseph Espy MIT LICENSE jespy@JosephEspy.com
+OBJ_DIR = obj
+DEFAULT_EMULATOR = bs_emulator
+DEFAULT_SERVER = cli-server
 
-SRC := main.cpp visualizer.cpp warrior.cpp
+.PHONY: clean output_dir emulators servers
 
-OBJDIR = obj
-OBJS = $(SRC:.cpp=.o) 
-OBJ_PATHS = $(addprefix $(OBJDIR)/, $(OBJS)) optimized-emulator/emu.o
+marzipan : emulators servers
+	g++ -o marzipan $(OBJ_DIR)/$(DEFAULT_EMULATOR).o $(OBJ_DIR)/$(DEFAULT_SERVER).o
 
-OUTPUT_OPTION = -o $(OBJDIR)/$@
+emulators: output_dir
+	$(MAKE) -C src/emulators
 
-CXXFLAGS = -Wall -Wextra -Werror -std=c++11 -pedantic-errors
-CPPFLAGS = -lstdc++
+servers: output_dir
+	$(MAKE) -C src/servers
 
+output_dir:
+	mkdir -p $(OBJ_DIR)
 
-marzipan : $(SRC:.cpp=.o) 
-	$(CC) $(CPPFLAGS) -o marzipan $(OBJ_PATHS)
-
-$(OBJS) : $(SRC) optimized-emulator/emu.o
-
-optimized-emulator/emu.o:
-	$(MAKE) -C optimized-emulator
-
-clean :
-	$(MAKE) -C optimized-emulator clean 
-	rm $(OBJ_PATHS) marzipanthe 
+clean:
+	rm -r $(OBJ_DIR) ||:
+	$(MAKE) -C src/servers clean
+	$(MAKE) -C src/emulators clean

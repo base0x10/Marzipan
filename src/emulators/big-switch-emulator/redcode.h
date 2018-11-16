@@ -53,8 +53,8 @@ enum Mode : char {
     PREDEC_B,       // "<" prefix,
 
     /* Description of postincrement */
-    POSTINC_A,      // ">" prefix
-    POSTINC_B,      // "{" prefix
+    POSTINC_A,      // "}" prefix
+    POSTINC_B,      // ">" prefix
 };
 
 // 1064 values

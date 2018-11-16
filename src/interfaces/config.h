@@ -3,21 +3,9 @@
 #ifndef MARZIPAN_EMULATOR_VARS_H_
 #define MARZIPAN_EMULATOR_VARS_H_
 
-#include "optimized-emulator/redcode.h"
-/* ~~~ THINGS YOU CAN CONFIGURE ~~~ */
+#include <string>
 
-// change to ICWS86 to compile with ICWS86 compatability
 #define DEBUG_SPEC
-
-// change the size of the threading pool
-constexpr int num_threads = 1;
-
-// optimize for low-fitness warriors TODO: write documentation on this
-constexpr bool predictive_execution = true;
-
-constexpr bool debug_mode = true;
-
-/* ~~~ THINGS YOU SHOULD NOT CHANGE ~~~ */
 
 #ifdef KOTH
 
@@ -30,14 +18,7 @@ constexpr int min_separation        = 100;
 // use min_sep as separation rather than random
 constexpr bool const_separation     = false;
 
-constexpr struct Instruction initial_instr {
-    DAT,
-    F,
-    IMMEDIATE,
-    0,
-    IMMEDIATE,
-    0
-};
+constexpr std::string initial_instr("DAT.F #0, #0");
 
 #endif
 
@@ -52,14 +33,8 @@ constexpr int min_separation        = 300;
 // use min_sep as separation rather than random
 constexpr bool const_separation     = false;
 
-constexpr struct Instruction initial_instr {
-    DAT,
-    F,
-    IMMEDIATE,
-    0,
-    IMMEDIATE,
-    0
-};
+constexpr std::string initial_instr("DAT.F #0, #0");
+
 #endif
 
 // simpilier spec for debugging emulator behavior
@@ -73,15 +48,6 @@ constexpr int min_separation        = 10;
 
 // use min_sep as separation rather than random
 constexpr bool const_separation     = true;
-
-constexpr struct Instruction initial_instr {
-    DAT,
-    F,
-    IMMEDIATE,
-    0,
-    IMMEDIATE,
-    0
-};
 
 #endif
 

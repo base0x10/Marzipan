@@ -64,10 +64,13 @@
 #include <cassert>
 #include <cstring>
 
+#include "../../interfaces/bs_emulator.h"
+#include "./bs_core.h"
 #include "./redcode.h"
-#include "../emulator-vars.h"
-#include "./core.h"
-#include "./emulator.h"
+#include "../../interfaces/config.h"
+
+#define likely(x) __builtin_expect(!!(x), 1)
+#define unlikely(x) __builtin_expect(!!(x), 0)
 
 // adds two positive numbers and returns the value modulo core_size
 inline int16_t add(int16_t a, int16_t b) {
@@ -86,8 +89,7 @@ inline int16_t sub(int16_t a, int16_t b) {
  * the logic of an operation has concluded.  
  * This function is called during the cleanup prior to switching turns
  */
-inline void Emulator::post_increment() {
-
+inline void BS_Emulator::post_increment() {
 
     while (!core.to_post_increment_a.empty()) {
         auto addr = core.to_post_increment_a.front();
@@ -104,7 +106,7 @@ inline void Emulator::post_increment() {
     }
 }
 
-inline void Emulator::queue_task(int addr) {
+inline void BS_Emulator::queue_task(int addr) {
     std::queue<int16_t> & queue =
         (core.turn_w1 ? core.task_queue_w1 : core.task_queue_w2);
     if(likely(queue.size() < max_num_tasks)) {
@@ -122,7 +124,7 @@ inline void Emulator::queue_task(int addr) {
  *   if the game ends before any instructions are executed, NO_EXECUTION
  */
 
-int Emulator::run(int steps) {
+int BS_Emulator::run(int steps) {
 
     // run until i == cycles_before_tie or steps this run == steps
     int remaining_steps = cycles_before_tie - core.counter;
@@ -178,10 +180,6 @@ int Emulator::run(int steps) {
      * - both task queues are non-empty
      * - all a-numbers and b-numbers in core are positive and < core_size
      * - all opcode.modifier pairs are valid (see ICWS.94-5.1)
-     * - restricted load file syntax
-     *      - No SEQ, only CMP
-     *      
-     *
      */
 
     for (int i = 0 ; i < steps ; i++) {
@@ -204,13 +202,6 @@ int Emulator::run(int steps) {
 
         // addresses are %core_size before being appended to task queue
         auto current_instr = core.memory[program_counter];
-
-        if (debug_mode) {
-            std::cout
-                << "running instruction: PC = "
-                << program_counter
-                << std::endl;
-        }
 
         // note: this is absolute while ICWS defines it as relative
         int a_ptr {};
