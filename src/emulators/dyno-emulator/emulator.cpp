@@ -1,3 +1,0 @@
-void g() {
-    return;
-}

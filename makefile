@@ -1,22 +1,16 @@
-OBJ_DIR = obj
-DEFAULT_EMULATOR = bs_emulator
-DEFAULT_SERVER = cli-server
+cppsrc = cli.cpp
+csrc = redcode.c
+obj = $(csrc:.c=.o) $(cppsrc:.cpp=.o)
 
-.PHONY: clean output_dir emulators servers
+COPTS = -Wall -Wextra -Werror -pedantic-errors -O3
 
-marzipan : emulators servers
-	g++ -o marzipan $(OBJ_DIR)/$(DEFAULT_EMULATOR).o $(OBJ_DIR)/$(DEFAULT_SERVER).o
+CXXFLAGS = -std=c++11  $(COPTS)
+CFLAGS = -std=c99 $(COPTS) -Wmissing-prototypes -Wstrict-prototypes -Wold-style-definition
+LDFLAGS = -lstdc++
 
-emulators: output_dir
-	$(MAKE) -C src/emulators
+marzipan: $(obj)
+	$(CC) -o $@ $^ $(LDFLAGS)
 
-servers: output_dir
-	$(MAKE) -C src/servers
-
-output_dir:
-	mkdir -p $(OBJ_DIR)
-
+.PHONY: clean
 clean:
-	rm -r $(OBJ_DIR) ||:
-	$(MAKE) -C src/servers clean
-	$(MAKE) -C src/emulators clean
+	rm -f $(obj) marzipan
