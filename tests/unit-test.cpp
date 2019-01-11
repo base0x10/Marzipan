@@ -1,7 +1,6 @@
 // Copyright 2018 Joseph Espy MIT LICENSE jespy@JosephEspy.com
 
 #include <iostream>
-#include "./redcode-test.h"
 #include "gtest/gtest.h"
 
 int main(int argc, char **argv) {
