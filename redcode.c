@@ -173,7 +173,8 @@ int str2rinstr(char *str, struct ReadableInstruction *to_fill, int *a_field,
 
 BADPARSE:
   // encountered a bad string, so zero everything and return 0
-  *to_fill = (struct ReadableInstruction){0, 0, 0, 0};
+  *to_fill = (struct ReadableInstruction){(enum Opcode)0, (enum Modifier)0,
+                                          (enum Mode)0, (enum Mode)0};
   *a_field = 0;
   *b_field = 0;
   return 0;

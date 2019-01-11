@@ -1,7 +1,7 @@
 // Copyright 2018 Joseph Espy MIT LICENSE jespy@JosephEspy.com
 
-#ifndef MARZIPAN_REDCODE_H_
-#define MARZIPAN_REDCODE_H_
+#ifndef REDCODE_H_
+#define REDCODE_H_
 
 #include "./types.h"
 
@@ -102,4 +102,4 @@ int str2rinstr(char *str, struct ReadableInstruction *to_fill, int *a_field,
 // returns number of bytes read on success and 0 on failure
 int str2instr(char *str, struct Instruction *to_fill);
 
-#endif  // MARZIPAN_REDCODE_H_
+#endif  // REDCODE_H_

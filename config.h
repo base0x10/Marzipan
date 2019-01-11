@@ -3,8 +3,8 @@
 // Default configuration constant.  May be overwritten by compile args
 // same defaults as pmars
 
-#ifndef MARZIPAN_CONFIG_H_
-#define MARZIPAN_CONFIG_H_
+#ifndef CONFIG_H_
+#define CONFIG_H_
 
 #ifndef CORESIZE
 #define CORESIZE 8000
@@ -34,4 +34,4 @@
 #define MINDISTANCE 100
 #endif
 
-#endif  // MARZIPAN_CONFIG_H_
+#endif  // CONFIG_H_
