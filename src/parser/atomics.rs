@@ -4,16 +4,15 @@ use nom::{
     branch::alt,
     bytes::complete::{tag, tag_no_case},
     character::complete::digit1,
-    combinator::{map, map_res},
+    combinator::{map, map_res, recognize},
     error::VerboseError,
-    sequence::preceded,
+    sequence::{pair, preceded},
     IResult,
 };
 
 // This function was adapted from the s_expr parser in the nom examples folder
 /// parse an i32 decimal string
 pub fn parse_num(input: &str) -> IResult<&str, i32, VerboseError<&str>> {
-    // This was written when I was dumb.  It can be done with only s.parse.  TODO...
     alt((
         map_res(digit1, |s: &str| s.parse::<i32>()),
         map_res(preceded(tag("-"), digit1), |s: &str| {

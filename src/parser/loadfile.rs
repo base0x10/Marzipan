@@ -2,13 +2,10 @@ use crate::redcode::{AddrMode, Instruction, Modifier, Opcode, RedAddr};
 use nom::{
     branch::alt,
     bytes::complete::{is_not, tag, tag_no_case},
+    character::complete::{line_ending, space0, space1},
     error::VerboseError,
-    sequence::{delimited, preceded, pair, separated_pair, terminated},
+    sequence::{delimited, pair, preceded, separated_pair, terminated},
     IResult,
-    character::complete::{
-        space1,
-        line_ending
-    }
 };
 
 use super::atomics;
@@ -72,6 +69,22 @@ fn parse_fields(
     separated_pair(parse_field, pair(tag(","), space1), parse_field)(input)
 }
 
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
+enum LineContent<'a> {
+    Comment(&'a str),
+    Instruction(Instruction),
+    Empty(),
+    Org(i32),
+}
+
+fn parse_comment(input: &str) -> IResult<&str, LineContent, VerboseError<&str>> {
+    match preceded(tag(";"), is_not("\n"))(input) {
+        Ok((leftover, captured)) => Ok((leftover, LineContent::Comment(captured))),
+        Err(err) => Err(err),
+    }
+}
+
+// doesn't consume trailing whitespace
 pub fn parse_instr(input: &str) -> IResult<&str, Instruction, VerboseError<&str>> {
     let tup_instr = separated_pair(parse_opmodifier, space1, parse_fields)(input);
     match tup_instr {
@@ -92,31 +105,24 @@ pub fn parse_instr(input: &str) -> IResult<&str, Instruction, VerboseError<&str>
     }
 }
 
-#[derive(Copy, Clone, Debug, Eq, PartialEq)]
-enum LineContent<'a> {
-    Comment(&'a str),
-    Instruction(Instruction),
-    Empty(),
-    Org(i32)
-}
-
-// empty lines are parsed as comments with no text
-fn parse_comment_line(input: &str) -> IResult<&str, LineContent, VerboseError<&str>> {
-    match preceded(tag(";"), is_not("\n"))(input) {
-        Ok((leftover, captured)) => Ok((leftover, LineContent::Comment(captured))),
-        Err(err) => Err(err),
-    }
-}
-
-fn parse_instr_line(input: &str) -> IResult<&str, LineContent, VerboseError<&str>> {
-    match terminated(parse_instr, is_not(";\n"))(input) {
+// what is wrong with this
+// I would both like to expose a function which parses integers for users
+// and I would like to wrap the result of that function with LineContent
+// parses instr and the spaces following it (presumably followed by comment or \n)
+fn parse_instr_internal(input: &str) -> IResult<&str, LineContent, VerboseError<&str>> {
+    match terminated(parse_instr, space0)(input) {
         Ok((leftover, captured)) => Ok((leftover, LineContent::Instruction(captured))),
         Err(err) => Err(err),
     }
 }
 
-fn parse_org_line(input: &str) -> IResult<&str, LineContent, VerboseError<&str>> {
-    match terminated(separated_pair(tag_no_case("ORG"), space1, atomics::parse_num), is_not("\n;"))(input) {
+// ORG 3 means index 3 instruction is first executed
+fn parse_org_pseudo_op(input: &str) -> IResult<&str, LineContent, VerboseError<&str>> {
+    match terminated(
+        separated_pair(tag_no_case("ORG"), space1, atomics::parse_num),
+        is_not("\n;"),
+    )(input)
+    {
         Ok((leftover, (_, captured))) => Ok((leftover, LineContent::Org(captured))),
         Err(err) => Err(err),
     }
@@ -129,15 +135,20 @@ fn parse_empty_line(input: &str) -> IResult<&str, LineContent, VerboseError<&str
     }
 }
 
-
-
-pub fn parse_loadfile(input: &str) -> Result<(Vec<Instruction>, i32), (&str, Vec<Instruction>, Vec<&str>)> {
+pub fn parse_loadfile(
+    input: &str,
+) -> Result<(Vec<Instruction>, i32), (&str, Vec<Instruction>, Vec<&str>)> {
     let mut input = input;
     let mut comments = Vec::new();
     let mut instructions = Vec::new();
     let mut org = 0;
     while !input.is_empty() {
-        let res = alt((parse_comment_line, parse_instr_line, parse_empty_line, parse_org_line))(input);
+        let res = alt((
+            parse_comment,
+            parse_instr_internal,
+            parse_empty_line,
+            parse_org_pseudo_op,
+        ))(input);
         println!("{:?}", res);
         match res {
             Ok((leftover, LineContent::Instruction(instr))) => {
@@ -176,28 +187,29 @@ mod tests {
         assert_eq!(res.unwrap().0.len(), 3);
     }
 
+    // this is broken and needs to be updated to deal with modern comment api
     #[test]
     fn test_comment() {
         assert_eq!(
-            parse_comment_line(";1234\nabc"),
-            Ok(("abc", LineContent::Comment("1234")))
+            parse_comment(";1234\nabc"),
+            Ok(("\nabc", LineContent::Comment("1234")))
         );
     }
     #[test]
     fn test_instr_parse() {
         let to_parse = "DAT.A #100, #100";
         assert_eq!(
-            parse_instr(to_parse),
+            parse_instr_internal(to_parse),
             Ok((
                 "",
-                Instruction {
+                LineContent::Instruction(Instruction {
                     opcode: Opcode::Dat,
                     modifier: Modifier::A,
                     a_addr_mode: AddrMode::Immediate,
                     b_addr_mode: AddrMode::Immediate,
                     a_value: RedAddr::new(100),
                     b_value: RedAddr::new(100)
-                }
+                })
             ))
         );
     }

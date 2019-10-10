@@ -8,6 +8,7 @@ struct Warrior {
     pspace: [redcode::Instruction; redcode::PSPACESIZE],
 }
 
+// should this be pub?  why or why not>
 pub struct Core {
     mem: [redcode::Instruction; redcode::CORESIZE],
     warriors: [Warrior; redcode::NUMWARRIORS],
@@ -19,6 +20,6 @@ mod tests {
     use super::*;
     #[test]
     fn test_core() {
-        
+        // TODO: This        
     }
 } 

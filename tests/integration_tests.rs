@@ -41,7 +41,15 @@ JMP.A $-2, #0
 "#;
 
     println!("{}", loadfile);
-    let res = marzipan::parser::loadfile::parse_loadfile(&_loadfile);
+    let res = marzipan::parser::loadfile::parse_loadfile(&loadfile);
     println!("{:?}", res);
-    assert_eq!(false, true);
+    assert_eq!(4, res.unwrap().0.len());
+    assert_eq!(
+        marzipan::parser::loadfile::parse_loadfile(&loadfile)
+            .unwrap()
+            .0,
+        marzipan::parser::loadfile::parse_loadfile(&_loadfile)
+            .unwrap()
+            .0
+    );
 }
