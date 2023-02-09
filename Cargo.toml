@@ -1,0 +1,9 @@
+[workspace]
+
+members = [
+	"redcode",
+	"redcode-parser",
+	"marzipan-core",
+	"verification-tests",
+	"marzipan-cli",
+]
