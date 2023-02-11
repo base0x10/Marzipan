@@ -11,3 +11,10 @@ readme.workspace = true
 description = "Types for the Redcode assembly language used by the CoreWar programming game"
 
 [dependencies]
+num-traits = "0.2"
+num-derive = "0.3"
+serde = {version = "1.0", features=["derive"]}
+
+[dev-dependencies]
+itertools = "0.10"
+rand = "0.8"
