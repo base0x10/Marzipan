@@ -1,3 +1,11 @@
+//! Representations for the redcode assembly language used in CoreWar
+//!
+//! Supports the redcode language features specified in the ICWS '88
+//! specification and the ICWS '94 specification drafts, as well as the
+//! standard extensions supported by the pMARS emulator.
+//!
+//! See also the ['94 ICWS draft](https://corewar.co.uk/standards/icws94.txt)
+
 // Make clippy as annoying as possible
 #![deny(
     // All typically enabled warnings are converted into errors
@@ -77,14 +85,6 @@
     clippy::verbose_file_reads,
     clippy::wildcard_enum_match_arm
 )]
-
-//! Representations for the redcode assembly language used in CoreWar
-//!
-//! Supports the redcode language features specified in the ICWS '88
-//! specification and the ICWS '94 specification drafts, as well as the
-//! standard extensions supported by the pMARS emulator.
-//! 
-//! See also the ['94 ICWS draft](https://corewar.co.uk/standards/icws94.txt)
 
 // used to convert redcode enums to numerical values
 #[macro_use]
