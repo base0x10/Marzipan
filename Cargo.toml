@@ -7,3 +7,13 @@ members = [
 	"verification-tests",
 	"marzipan-cli",
 ]
+
+[workspace.package]
+version = "0.1.0"
+authors = ["Joseph Espy <jespy@josephespy.com>"]
+keywords = ["redcode", "corewar", "emulator", "marzipan"]
+categories = ["emulators", "games"]
+edition = "2021"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/base0x10/marzipan"
+description = "A collection of emulators and tools for the CoreWar programming game"
