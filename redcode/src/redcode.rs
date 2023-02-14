@@ -268,6 +268,21 @@ pub enum AddrMode {
     PostincB, // >
 }
 
+impl ToString for AddrMode {
+    fn to_string(&self) -> String {
+        match *self {
+            Self::Immediate => "#".to_owned(),
+            Self::Direct => "$".to_owned(),
+            Self::IndirectA => "*".to_owned(),
+            Self::IndirectB => "@".to_owned(),
+            Self::PredecA => "{".to_owned(),
+            Self::PredecB => "<".to_owned(),
+            Self::PostincA => "}".to_owned(),
+            Self::PostincB => ">".to_owned(),
+        }
+    }
+}
+
 /// A Redcode assembly instruction including modifiers and addressing modes.
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Hash, Serialize, Deserialize)]
 pub struct Instruction {
@@ -393,10 +408,10 @@ pub const fn default_modifiers(
 }
 
 /// Utilities for enumerating and iterating over all valid redcode instructions
-#[cfg(test)]
 pub mod test_utils {
     use super::*;
 
+    /// All valid opcodes for '88, '94, and pMARS extensions to redcode
     pub const OPCODES: [Opcode; 19] = [
         Opcode::Dat,
         Opcode::Mov,
@@ -418,6 +433,8 @@ pub mod test_utils {
         Opcode::Ldp,
         Opcode::Stp,
     ];
+
+    /// All valid modifiers for '88, '94, and pMARS extensions to redcode
     pub const MODIFIERS: [Modifier; 7] = [
         Modifier::A,
         Modifier::B,
@@ -428,6 +445,7 @@ pub mod test_utils {
         Modifier::I,
     ];
 
+    /// All valid Addressing modes for '88, '94, and pMARS extensions to redcode
     pub const ADDR_MODES: [AddrMode; 8] = [
         AddrMode::Immediate,
         AddrMode::Direct,
@@ -439,20 +457,21 @@ pub mod test_utils {
         AddrMode::PostincB,
     ];
 
+    /// iterate over every valid redcode instruction including '88 and '94
+    /// standards, as well as pMARS extensions.
     pub fn all_instructions() -> impl Iterator<Item = Instruction> {
-        let it = itertools::iproduct!(
+        itertools::iproduct!(
             OPCODES.iter(),
             MODIFIERS.iter(),
             ADDR_MODES.iter(),
             ADDR_MODES.iter()
-        );
-        let instr_iter = it.map(|(o, m, a, b)| Instruction {
+        )
+        .map(|(o, m, a, b)| Instruction {
             opcode: *o,
             modifier: *m,
             a_addr_mode: *a,
             b_addr_mode: *b,
-        });
-        return instr_iter;
+        })
     }
 }
 
