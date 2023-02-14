@@ -17,3 +17,9 @@ edition = "2021"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/base0x10/marzipan"
 description = "A collection of emulators and tools for the CoreWar programming game"
+
+[profile.test]
+# Speeds up tests that check a property for every possible redcode instruction
+# No measurable impact on test build time
+# No impact on which checks or debug info are generated.
+opt-level = 3
