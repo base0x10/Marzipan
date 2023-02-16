@@ -13,3 +13,7 @@ description = "Parsers for the redcode assembly language used in CoreWar"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+nom = "7"
+redcode = { path = "../redcode"}
+
+
