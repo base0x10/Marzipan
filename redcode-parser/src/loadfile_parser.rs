@@ -2,62 +2,19 @@ use std::error::Error;
 
 use redcode::{
     default_modifiers, AddrMode, AddrMode::*, Modifier, Modifier::*, Opcode,
-    Opcode::*
+    Opcode::*, RelaxedCompleteInstruction, RelaxedWarrior, Instruction
 };
 
 use nom::{
     branch::alt,
     bytes::complete::{is_not, tag, tag_no_case},
-    character::complete::{i64, line_ending, space0, u32},
+    character::complete::{i64, line_ending, space0, u64},
     combinator::{eof, map, opt, recognize},
     error::VerboseError,
     sequence::{delimited, pair, preceded, tuple},
     Err, IResult, Finish,
 };
 
-/// Similar to a redcode::Instruction with signed fields
-/// 
-/// To simplify parsing, we produce ParsedInstruction, and allow the user
-/// to convert to modulo coresize field values
-#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
-pub struct ParsedInstruction {
-    pub opcode: Opcode,
-    pub modifier: Modifier,
-    pub a_addr_mode: AddrMode,
-    pub b_addr_mode: AddrMode,
-    pub a_field: i64,
-    pub b_field: i64,
-}
-
-impl Default for ParsedInstruction {
-    fn default() -> ParsedInstruction {
-        ParsedInstruction {
-            opcode: Opcode::Dat,
-            modifier: Modifier::A,
-            a_addr_mode: AddrMode::Immediate,
-            b_addr_mode: AddrMode::Immediate,
-            a_field: 0,
-            b_field: 0
-        }
-    }
-}
-
-#[derive(Clone, Debug, Eq, PartialEq)]
-pub struct ParsedWarrior {
-    pub code: Vec<ParsedInstruction>,
-    pub start: i64,
-    pub pin: Option<u32>,
-}
-
-impl Default for ParsedWarrior {
-    fn default() -> ParsedWarrior {
-        ParsedWarrior {
-            code: vec![ParsedInstruction::default()],
-            start: 0,
-            pin: None,
-        }
-    }
-}
 /// Formal grammer of a redcode loadfile
 ///     Loadfiles are rigid, and do not permit omitted fields, extra lines, etc.  
 ///     Adapted from https://corewar.co.uk/standards/icws94.htm with additions from http://www.koth.org/info/pmars-redcode-94.txt
@@ -116,7 +73,7 @@ impl Default for ParsedWarrior {
 /// // text
 /// //     (^eol)*
 /// ```
-pub fn parse(warrior: &str, ommit_modifier: bool) -> Result<ParsedWarrior, Err<VerboseError<&str>>> {
+pub fn parse(warrior: &str, ommit_modifier: bool) -> Result<RelaxedWarrior, Err<VerboseError<&str>>> {
     let mut input = warrior;
     let mut instructions = vec![];
     let mut start = None;
@@ -130,7 +87,7 @@ pub fn parse(warrior: &str, ommit_modifier: bool) -> Result<ParsedWarrior, Err<V
                     LineContent::Empty() => {}
                     LineContent::Comment(_) => {}
                     LineContent::Eof() => {
-                        return Ok(ParsedWarrior {
+                        return Ok(RelaxedWarrior {
                             code: instructions,
                             start: start.unwrap_or(0),
                             pin,
@@ -141,14 +98,14 @@ pub fn parse(warrior: &str, ommit_modifier: bool) -> Result<ParsedWarrior, Err<V
                     LineContent::Org(Some(e)) => start = Some(e),
                     LineContent::Org(None) => start = Some(0),
                     LineContent::End(Some(e)) => {
-                        return Ok(ParsedWarrior {
+                        return Ok(RelaxedWarrior {
                             code: instructions,
                             start: e,
                             pin,
                         })
                     }
                     LineContent::End(None) => {
-                        return Ok(ParsedWarrior {
+                        return Ok(RelaxedWarrior {
                             code: instructions,
                             start: start.unwrap_or(0),
                             pin,
@@ -159,10 +116,10 @@ pub fn parse(warrior: &str, ommit_modifier: bool) -> Result<ParsedWarrior, Err<V
             Err(e) => return Err(e),
         }
     }
-    Ok(ParsedWarrior::default())
+    Ok(RelaxedWarrior::default())
 }
 
-pub fn parse_instr<'a>(line: &'a str, ommit_modifier: bool) -> Result<ParsedInstruction, Box<dyn Error+'a>> {
+pub fn parse_instr<'a>(line: &'a str, ommit_modifier: bool) -> Result<RelaxedCompleteInstruction, Box<dyn Error+'a>> {
     match parse_line(line, ommit_modifier).finish() {
         Ok((_, LineContent::Instruction(instr))) => Ok(instr),
         Ok((_, _content)) => Err("Parsed the line not as an instruction but as something else".into()),
@@ -178,11 +135,11 @@ pub fn parse_instr<'a>(line: &'a str, ommit_modifier: bool) -> Result<ParsedInst
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 enum LineContent<'a> {
     Comment(&'a str),
-    Instruction(ParsedInstruction),
+    Instruction(RelaxedCompleteInstruction),
     Empty(),
     Org(Option<i64>),
     End(Option<i64>),
-    Pin(u32),
+    Pin(u64),
     Eof(),
 }
 
@@ -237,7 +194,7 @@ fn parse_line(input: &str, ommit_modifier: bool) -> IResult<&str, LineContent, V
         map(
             delimited(
                 pair(space0, tag_no_case("PIN")),
-                preceded(space0, u32),
+                preceded(space0, u64),
                 pair(space0, line_ending),
             ),
             LineContent::Pin,
@@ -247,7 +204,7 @@ fn parse_line(input: &str, ommit_modifier: bool) -> IResult<&str, LineContent, V
     ))(input)
 }
 
-fn parse_loadfile_88_instr(input: &str) -> IResult<&str, ParsedInstruction, VerboseError<&str>> {
+fn parse_loadfile_88_instr(input: &str) -> IResult<&str, RelaxedCompleteInstruction, VerboseError<&str>> {
     let tuple_instruction = tuple((
         parse_opcode,
         space0,
@@ -265,11 +222,10 @@ fn parse_loadfile_88_instr(input: &str) -> IResult<&str, ParsedInstruction, Verb
         Ok((leftover, (opcode, _, a_addr_mode, _, a_field, _, _, _, b_addr_mode, _, b_field))) => {
             Ok((
                 leftover,
-                ParsedInstruction {
-                    opcode,
-                    modifier: default_modifiers(opcode, a_addr_mode, b_addr_mode),
-                    a_addr_mode,
-                    b_addr_mode,
+                RelaxedCompleteInstruction {
+                    instr: Instruction {
+                        opcode, modifier: default_modifiers(opcode, a_addr_mode, b_addr_mode), a_addr_mode, b_addr_mode
+                    },
                     a_field,
                     b_field
                 },
@@ -280,7 +236,7 @@ fn parse_loadfile_88_instr(input: &str) -> IResult<&str, ParsedInstruction, Verb
 }
 
 /// Produces an Instruction, consuming line content but not the newline
-fn parse_loadfile_94_instr(input: &str) -> IResult<&str, ParsedInstruction, VerboseError<&str>> {
+fn parse_loadfile_94_instr(input: &str) -> IResult<&str, RelaxedCompleteInstruction, VerboseError<&str>> {
     let tuple_instruction = tuple((
         parse_opcode,
         tag("."),
@@ -302,11 +258,8 @@ fn parse_loadfile_94_instr(input: &str) -> IResult<&str, ParsedInstruction, Verb
             (opcode, _, modifier, _, a_addr_mode, _, a_field, _, _, _, b_addr_mode, _, b_field),
         )) => Ok((
             leftover,
-            ParsedInstruction {
-                opcode,
-                modifier,
-                a_addr_mode,
-                b_addr_mode,
+            RelaxedCompleteInstruction {
+                instr: Instruction {opcode, modifier, a_addr_mode, b_addr_mode},
                 a_field,
                 b_field
             },
