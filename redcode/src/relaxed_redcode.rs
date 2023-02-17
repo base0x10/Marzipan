@@ -4,6 +4,7 @@ use crate::{CompleteInstruction, FieldValue, Instruction, Warrior};
 
 /// A [`CompleteInstruction`] that allows field values less than zero or
 /// greater than `core_size`.
+#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
 pub struct RelaxedCompleteInstruction {
     /// The opcode, modifier, and modes used by this instruction
     pub instr: Instruction,
@@ -22,6 +23,16 @@ impl RelaxedCompleteInstruction {
             instr: self.instr,
             a_field: normalize(self.a_field, core_size),
             b_field: normalize(self.b_field, core_size),
+        }
+    }
+}
+
+impl Default for RelaxedCompleteInstruction {
+    fn default() -> Self {
+        Self {
+            instr: Instruction::default(),
+            a_field: 0,
+            b_field: 0,
         }
     }
 }
@@ -55,6 +66,16 @@ impl RelaxedWarrior {
             code,
             start: normalize(self.start, core_size),
             pin: self.pin,
+        }
+    }
+}
+
+impl Default for RelaxedWarrior {
+    fn default() -> Self {
+        Self {
+            code: vec![RelaxedCompleteInstruction::default()],
+            start: 0,
+            pin: None,
         }
     }
 }
