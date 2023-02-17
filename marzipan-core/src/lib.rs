@@ -108,7 +108,6 @@
 //! `GenericEmulator` is the reference implementation.  The emulation code
 //! attempts to be a direct translation of the (partial) CoreWar specification.
 //! It should be obviously correct, easy to read and debug, and portable.
-//!
 // TODO(jespy) Add a section about pmars verification tests
 // TODO(jespy) Add benchmarked performance relative to pmars
 //
@@ -122,7 +121,6 @@
 // for evolvers or optimizers that generate many random, low quality warriors.
 //
 // Core size and supported instructions are specified at compile time.
-//
 //! ## Bytecode Formats
 //!
 //! Virtual machines and emulators often execute a custom bytecode.  This

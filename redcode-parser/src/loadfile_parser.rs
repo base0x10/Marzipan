@@ -1,10 +1,5 @@
 use std::error::Error;
 
-use redcode::{
-    default_modifiers, AddrMode, AddrMode::*, Modifier, Modifier::*, Opcode,
-    Opcode::*, RelaxedCompleteInstruction, RelaxedWarrior, Instruction
-};
-
 use nom::{
     branch::alt,
     bytes::complete::{is_not, tag, tag_no_case},
@@ -12,24 +7,31 @@ use nom::{
     combinator::{eof, map, opt, recognize},
     error::VerboseError,
     sequence::{delimited, pair, preceded, tuple},
-    Err, IResult, Finish,
+    Err, Finish, IResult,
+};
+use redcode::{
+    default_modifiers, AddrMode, AddrMode::*, Instruction, Modifier,
+    Modifier::*, Opcode, Opcode::*, RelaxedCompleteInstruction, RelaxedWarrior,
 };
 
 /// Formal grammer of a redcode loadfile
-///     Loadfiles are rigid, and do not permit omitted fields, extra lines, etc.  
+///     Loadfiles are rigid, and do not permit omitted fields, extra lines, etc.
 ///     Adapted from https://corewar.co.uk/standards/icws94.htm with additions from http://www.koth.org/info/pmars-redcode-94.txt
 ///
-/// The syntax that marzipan accepts is more permissive in a number of ways than required by ICWS.
+/// The syntax that marzipan accepts is more permissive in a number of ways than
+/// required by ICWS.
 ///  * All whitespace is optional excluding newlines
-///  * PSPACE and pmars extensions are accepted including opcodes, modes, and PIN
-///  * ORG and END are accepted.  These are underspecified in ICWS for the loadfile but used in PMARS
+///  * PSPACE and pmars extensions are accepted including opcodes, modes, and
+///    PIN
+///  * ORG and END are accepted.  These are underspecified in ICWS for the
+///    loadfile but used in PMARS
 ///
 /// Grammer follows relatively standard rules:
 ///  * ^A means any symbol except for A.
 ///  * A* means 0 or more occurrences of A.
 ///  * A+ means 1 or more occurrences of A.
 ///  * A? means 0 or one occurrences of A.
-///  * A | B means either A or B.  
+///  * A | B means either A or B.
 ///  * A B means the symbol A followed by the symbol B.
 ///  * (A B ...) means the symbols A B ... grouped.
 /// ```
@@ -73,7 +75,10 @@ use nom::{
 /// // text
 /// //     (^eol)*
 /// ```
-pub fn parse(warrior: &str, ommit_modifier: bool) -> Result<RelaxedWarrior, Err<VerboseError<&str>>> {
+pub fn parse(
+    warrior: &str,
+    ommit_modifier: bool,
+) -> Result<RelaxedWarrior, Err<VerboseError<&str>>> {
     let mut input = warrior;
     let mut instructions = vec![];
     let mut start = None;
@@ -119,19 +124,22 @@ pub fn parse(warrior: &str, ommit_modifier: bool) -> Result<RelaxedWarrior, Err<
     Ok(RelaxedWarrior::default())
 }
 
-pub fn parse_instr<'a>(line: &'a str, ommit_modifier: bool) -> Result<RelaxedCompleteInstruction, Box<dyn Error+'a>> {
+pub fn parse_instr<'a>(
+    line: &'a str,
+    ommit_modifier: bool,
+) -> Result<RelaxedCompleteInstruction, Box<dyn Error + 'a>> {
     match parse_line(line, ommit_modifier).finish() {
         Ok((_, LineContent::Instruction(instr))) => Ok(instr),
-        Ok((_, _content)) => Err("Parsed the line not as an instruction but as something else".into()),
+        Ok((_, _content)) => Err("Parsed the line not as an instruction but \
+                                  as something else"
+            .into()),
         Err(e) => Err(Box::new(e)),
     }
 }
 
-/*
- * Conventions:
- *  - parsers for objects inside lines don't consume the newline characters.
- *  - parsers consume internal whitespace but not surrounding whitespace
- */
+// Conventions:
+//  - parsers for objects inside lines don't consume the newline characters.
+//  - parsers consume internal whitespace but not surrounding whitespace
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 enum LineContent<'a> {
     Comment(&'a str),
@@ -143,30 +151,35 @@ enum LineContent<'a> {
     Eof(),
 }
 
-fn parse_line(input: &str, ommit_modifier: bool) -> IResult<&str, LineContent, VerboseError<&str>> {
+fn parse_line(
+    input: &str,
+    ommit_modifier: bool,
+) -> IResult<&str, LineContent, VerboseError<&str>> {
     let parse_instr = match ommit_modifier {
         true => parse_loadfile_88_instr,
         false => parse_loadfile_94_instr,
     };
     alt((
-        /* Parse a line with only 0 or more whitespace characters */
+        // Parse a line with only 0 or more whitespace characters
         map(pair(space0, line_ending), |_| LineContent::Empty()),
-        /* Parse a line containing an instruction possibly with surrounding whitespace */
+        // Parse a line containing an instruction possibly with surrounding
+        // whitespace
         map(
             delimited(space0, parse_instr, pair(space0, line_ending)),
             LineContent::Instruction,
         ),
-        /* Parse a line with a comment possibly preceded by whitespace */
+        // Parse a line with a comment possibly preceded by whitespace
         map(
             delimited(space0, parse_comment, pair(space0, line_ending)),
             LineContent::Comment,
         ),
-        /* Parse an ORG pseudoop without an address (default to 0) */
+        // Parse an ORG pseudoop without an address (default to 0)
         map(
             delimited(space0, tag_no_case("ORG"), pair(space0, line_ending)),
             |_| LineContent::Org(None),
         ),
-        /* Parse an END pseudoop with the starting address, ending with EOF or linebreak */
+        // Parse an END pseudoop with the starting address, ending with EOF or
+        // linebreak
         map(
             delimited(
                 pair(space0, tag_no_case("END")),
@@ -175,13 +188,13 @@ fn parse_line(input: &str, ommit_modifier: bool) -> IResult<&str, LineContent, V
             ),
             |num| LineContent::End(Some(num)),
         ),
-        /* Parse an END pseudoop without an address.  Any junk can can come after end.
-         * For that reason, this must be checked at lower priority than END followed by a start address
-         */
+        // Parse an END pseudoop without an address.  Any junk can can come
+        // after end. For that reason, this must be checked at lower
+        // priority than END followed by a start address
         map(preceded(space0, tag_no_case("END")), |_| {
             LineContent::End(None)
         }),
-        /* Parse an ORG pseudoop with the starting address */
+        // Parse an ORG pseudoop with the starting address
         map(
             delimited(
                 pair(space0, tag_no_case("ORG")),
@@ -190,7 +203,7 @@ fn parse_line(input: &str, ommit_modifier: bool) -> IResult<&str, LineContent, V
             ),
             |num| LineContent::Org(Some(num)),
         ),
-        /* Parse a PIN pseudo op */
+        // Parse a PIN pseudo op
         map(
             delimited(
                 pair(space0, tag_no_case("PIN")),
@@ -199,12 +212,15 @@ fn parse_line(input: &str, ommit_modifier: bool) -> IResult<&str, LineContent, V
             ),
             LineContent::Pin,
         ),
-        /* Parse a line containing possible whitespace and an EOF or end of input */
+        // Parse a line containing possible whitespace and an EOF or end of
+        // input
         map(pair(space0, eof), |_| LineContent::Eof()),
     ))(input)
 }
 
-fn parse_loadfile_88_instr(input: &str) -> IResult<&str, RelaxedCompleteInstruction, VerboseError<&str>> {
+fn parse_loadfile_88_instr(
+    input: &str,
+) -> IResult<&str, RelaxedCompleteInstruction, VerboseError<&str>> {
     let tuple_instruction = tuple((
         parse_opcode,
         space0,
@@ -219,24 +235,46 @@ fn parse_loadfile_88_instr(input: &str) -> IResult<&str, RelaxedCompleteInstruct
         i64,
     ))(input);
     match tuple_instruction {
-        Ok((leftover, (opcode, _, a_addr_mode, _, a_field, _, _, _, b_addr_mode, _, b_field))) => {
-            Ok((
-                leftover,
-                RelaxedCompleteInstruction {
-                    instr: Instruction {
-                        opcode, modifier: default_modifiers(opcode, a_addr_mode, b_addr_mode), a_addr_mode, b_addr_mode
-                    },
-                    a_field,
-                    b_field
+        Ok((
+            leftover,
+            (
+                opcode,
+                _,
+                a_addr_mode,
+                _,
+                a_field,
+                _,
+                _,
+                _,
+                b_addr_mode,
+                _,
+                b_field,
+            ),
+        )) => Ok((
+            leftover,
+            RelaxedCompleteInstruction {
+                instr: Instruction {
+                    opcode,
+                    modifier: default_modifiers(
+                        opcode,
+                        a_addr_mode,
+                        b_addr_mode,
+                    ),
+                    a_addr_mode,
+                    b_addr_mode,
                 },
-            ))
-        }
+                a_field,
+                b_field,
+            },
+        )),
         Err(e) => Err(e),
     }
 }
 
 /// Produces an Instruction, consuming line content but not the newline
-fn parse_loadfile_94_instr(input: &str) -> IResult<&str, RelaxedCompleteInstruction, VerboseError<&str>> {
+fn parse_loadfile_94_instr(
+    input: &str,
+) -> IResult<&str, RelaxedCompleteInstruction, VerboseError<&str>> {
     let tuple_instruction = tuple((
         parse_opcode,
         tag("."),
@@ -255,13 +293,32 @@ fn parse_loadfile_94_instr(input: &str) -> IResult<&str, RelaxedCompleteInstruct
     match tuple_instruction {
         Ok((
             leftover,
-            (opcode, _, modifier, _, a_addr_mode, _, a_field, _, _, _, b_addr_mode, _, b_field),
+            (
+                opcode,
+                _,
+                modifier,
+                _,
+                a_addr_mode,
+                _,
+                a_field,
+                _,
+                _,
+                _,
+                b_addr_mode,
+                _,
+                b_field,
+            ),
         )) => Ok((
             leftover,
             RelaxedCompleteInstruction {
-                instr: Instruction {opcode, modifier, a_addr_mode, b_addr_mode},
+                instr: Instruction {
+                    opcode,
+                    modifier,
+                    a_addr_mode,
+                    b_addr_mode,
+                },
                 a_field,
-                b_field
+                b_field,
             },
         )),
         Err(e) => Err(e),
@@ -329,7 +386,10 @@ mod tests {
     #[test]
     fn check_opcode_parsing() {
         assert_eq!(parse_opcode("DAT"), Ok(("", Dat)));
-        assert_eq!(parse_opcode("dAtfollowingcrap"), Ok(("followingcrap", Dat)));
+        assert_eq!(
+            parse_opcode("dAtfollowingcrap"),
+            Ok(("followingcrap", Dat))
+        );
         assert_eq!(parse_opcode(" dat").is_ok(), false);
     }
 
@@ -354,7 +414,9 @@ mod tests {
     fn test_comment() {
         assert_eq!(
             parse_comment(";1234\nabc"),
-            Ok(("\nabc", "1234")), "The comment parser should return the content of the comment excluding the \";\" without consuming the line ending"
+            Ok(("\nabc", "1234")),
+            "The comment parser should return the content of the comment \
+             excluding the \";\" without consuming the line ending"
         );
         assert_eq!(
             parse_comment(";\n"),
@@ -364,12 +426,14 @@ mod tests {
         assert_eq!(
             parse_comment(";asdf\r\nabc"),
             Ok(("\r\nabc", "asdf")),
-            "The comment parser should accept carrage return + newline style line endings"
+            "The comment parser should accept carrage return + newline style \
+             line endings"
         );
         assert_eq!(
             parse_comment("; asdf\n"),
             Ok(("\n", " asdf")),
-            "The comment parser shouldn't consume the line ending after a commend"
+            "The comment parser shouldn't consume the line ending after a \
+             commend"
         );
     }
 }

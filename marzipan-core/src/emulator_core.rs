@@ -55,11 +55,12 @@ pub trait EmulatorCore {
     fn core_settings(self) -> CoreSettings;
 
     /// Query the value stored at an address in the core.
-    /// 
+    ///
     /// # Errors
     ///
-    /// Returns [`EmulatorError`]s in the event of an internal error.  Implementations
-    /// may return an error if addr is not a valid core address from 0 to `core_size - 1`.
+    /// Returns [`EmulatorError`]s in the event of an internal error.
+    /// Implementations may return an error if addr is not a valid core
+    /// address from 0 to `core_size - 1`.
     fn read_core(
         &self,
         addr: CoreAddr,

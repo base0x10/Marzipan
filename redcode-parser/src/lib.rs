@@ -1,3 +1,2 @@
 mod loadfile_parser;
-pub use loadfile_parser::parse;
-pub use loadfile_parser::parse_instr;
+pub use loadfile_parser::{parse, parse_instr};
