@@ -604,4 +604,24 @@ mod tests {
             instructions_displayed.iter().unique().count();
         assert_eq!(unique_display_reprs, instructions_displayed.len());
     }
+
+    #[test]
+    fn all_values_support_to_u8() {
+        use num_traits::cast::ToPrimitive;
+        // num_traits specifies that if the number of variants is within the
+        // range of the specified type, then ToPrimitive should always return
+        // Some.  Test that this remains true, or that more variants haven't
+        // been added which break the assumptions that all types can fit within
+        // a u8
+
+        for op in test_utils::OPCODES {
+            assert!(op.to_u8().is_some());
+        }
+        for modifier in test_utils::MODIFIERS {
+            assert!(modifier.to_u8().is_some());
+        }
+        for mode in test_utils::ADDR_MODES {
+            assert!(mode.to_u8().is_some())
+        }
+    }
 }
