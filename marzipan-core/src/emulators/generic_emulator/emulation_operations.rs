@@ -50,8 +50,14 @@ impl<'a> OpInputs<'a> {
 }
 
 /// Implementation of the [`Opcode::Dat`] instruction
-#[allow(clippy::unnecessary_wraps)]
-#[allow(clippy::missing_const_for_fn)]
+#[allow(
+    clippy::unnecessary_wraps,
+    reason = "Keep API to opcode functions identical"
+)]
+#[allow(
+    clippy::missing_const_for_fn,
+    reason = "Keep API to opcode functions identical"
+)]
 pub fn dat_op(_inputs: OpInputs) -> EmulatorResult<()> {
     // Do nothing past operand evaluation
     // Queue no further values to the process queue

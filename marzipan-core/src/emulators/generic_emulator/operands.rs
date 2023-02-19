@@ -32,8 +32,13 @@ pub struct RegisterValue {
     pub b_field: CoreAddr,
 }
 
-// TODO(jespy) enable this lint
-#[allow(clippy::indexing_slicing)]
+// TODO(jespy) Break up this function into simpler components, and enable this
+// lint for each
+#[allow(
+    clippy::indexing_slicing,
+    reason = "Removing indexing adds redundant logic for error handling and \
+              to satisfy the borrow checker"
+)]
 /// Evaluate the A and B operands according to the operand modifier
 ///
 /// Because `PostIncrement` may modify the core core, the values in

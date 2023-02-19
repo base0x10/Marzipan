@@ -198,7 +198,9 @@
     clippy::nursery,
     // Lints from "restriction" group - enforce a consistent if arbitrary style
     clippy::alloc_instead_of_core,
-    clippy::allow_attributes_without_reason,
+    // FPs for this lint
+    // https://github.com/rust-lang/rust-clippy/issues/10377
+    // clippy::allow_attributes_without_reason,
     clippy::arithmetic_side_effects,
     clippy::unnecessary_cast,
     clippy::as_underscore,
@@ -262,8 +264,12 @@
     clippy::use_debug,
     clippy::verbose_file_reads,
 )]
-// Internal Compiler Error https://github.com/rust-lang/rust-clippy/issues/10344
-#![allow(clippy::needless_pass_by_value)]
+#![allow(
+    clippy::needless_pass_by_value,
+    reason = "Internal Compiler Error bug workaround: https://github.com/rust-lang/rust-clippy/issues/10344"
+)]
+// require reason="..." #[allow(...)]
+#![feature(lint_reasons)]
 
 // Use no-std collections
 extern crate alloc;

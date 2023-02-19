@@ -2,7 +2,11 @@ use num_traits::cast::{FromPrimitive, ToPrimitive};
 use redcode;
 
 /// Translates from a redcode instruction to the encoded bytecode representation
-#[allow(clippy::unwrap_used)]
+#[allow(
+    clippy::unwrap_used,
+    reason = "redcode guarantees that tests that all redcode types can be \
+              converted to u8"
+)]
 pub fn encode(instr: redcode::Instruction) -> u32 {
     let op = instr.opcode.to_u8().unwrap();
     let modifier = instr.modifier.to_u8().unwrap();
@@ -41,7 +45,6 @@ mod tests {
     use super::*;
 
     #[test]
-    #[allow(clippy::unwrap_used)]
     fn verify_roundtrip_conversion() {
         for instr in all_instructions() {
             let bytecode = encode(instr);

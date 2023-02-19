@@ -280,9 +280,8 @@ pub enum EmulatorError {
 }
 
 impl fmt::Display for EmulatorError {
-    #[allow(clippy::pattern_type_mismatch)]
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self {
+        match *self {
             Self::InvalidParam(msg) => {
                 write!(f, "invalid parameter value for EmulatorCore function")?;
                 write!(f, "{msg}")
