@@ -85,6 +85,7 @@
     clippy::verbose_file_reads,
     clippy::wildcard_enum_match_arm
 )]
+#![feature(lint_reasons)]
 
 // used to convert redcode enums to numerical values
 #[macro_use]

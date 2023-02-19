@@ -1,3 +1,5 @@
+use core::fmt;
+
 use serde::{Deserialize, Serialize};
 
 /// Fields hold values that are positive offsets from their own core address.
@@ -103,6 +105,17 @@ pub enum Opcode {
     Stp,
 }
 
+#[allow(
+    clippy::use_debug,
+    reason = "Debug formatter used to get the opcode mnemonic from enum value"
+)]
+impl fmt::Display for Opcode {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        // Use Debug formatter to get the identifier of this variant
+        write!(f, "{self:?}")
+    }
+}
+
 /// The opcode modifier portion of a redcode instructions
 ///
 /// Supports '88 and '94 ICWS standard modifiers
@@ -163,6 +176,18 @@ pub enum Modifier {
     /// A-instruction and the B-value set to the B-instruction.  A write to
     /// core replaces the entire instruction pointed to by the B-pointer.
     I,
+}
+
+#[allow(
+    clippy::use_debug,
+    reason = "Debug formatter used to get the modifier mnemonic from enum \
+              value"
+)]
+impl fmt::Display for Modifier {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        // Use Debug formatter to get the identifier of this variant
+        write!(f, "{self:?}")
+    }
 }
 
 /// The addressing mode applied to the field of an instruction
@@ -268,17 +293,19 @@ pub enum AddrMode {
     PostincB, // >
 }
 
-impl ToString for AddrMode {
-    fn to_string(&self) -> String {
+impl fmt::Display for AddrMode {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match *self {
-            Self::Immediate => "#".to_owned(),
-            Self::Direct => "$".to_owned(),
-            Self::IndirectA => "*".to_owned(),
-            Self::IndirectB => "@".to_owned(),
-            Self::PredecA => "{".to_owned(),
-            Self::PredecB => "<".to_owned(),
-            Self::PostincA => "}".to_owned(),
-            Self::PostincB => ">".to_owned(),
+            Self::Immediate => write!(f, "#"),
+            Self::Direct => write!(f, "$"),
+            Self::IndirectA => write!(f, "*"),
+            Self::IndirectB => write!(f, "@"),
+            // "{{" is escaped form of "{"
+            Self::PredecA => write!(f, "{{"),
+            Self::PredecB => write!(f, "<"),
+            // "}}" is escaped for of "}"
+            Self::PostincA => write!(f, "}}"),
+            Self::PostincB => write!(f, ">"),
         }
     }
 }
@@ -307,6 +334,38 @@ pub struct CompleteInstruction {
     pub a_field: FieldValue,
     /// The B-field stored in this instruction
     pub b_field: FieldValue,
+}
+
+impl fmt::Display for CompleteInstruction {
+    /// Formats an instruction as a '94 loadfile syntax instruction.
+    ///
+    /// ```
+    /// # use redcode::*;
+    /// let a = CompleteInstruction {
+    ///     instr: Instruction {
+    ///         opcode: Opcode::Add,
+    ///         modifier: Modifier::AB,
+    ///         a_addr_mode: AddrMode::Immediate,
+    ///         b_addr_mode: AddrMode::Direct,
+    ///     },
+    ///     a_field: 16,
+    ///     b_field: 32,
+    /// };
+    ///
+    /// assert_eq!(a.to_string(), "Add.AB #16, $32");
+    /// ```
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(
+            f,
+            "{}.{} {}{}, {}{}",
+            self.instr.opcode,
+            self.instr.modifier,
+            self.instr.a_addr_mode,
+            self.a_field,
+            self.instr.b_addr_mode,
+            self.b_field
+        )
+    }
 }
 
 impl Default for Instruction {
@@ -353,7 +412,10 @@ pub const fn default_modifiers(
     a_mode: AddrMode,
     b_mode: AddrMode,
 ) -> Modifier {
-    #[allow(clippy::match_same_arms)]
+    #[allow(
+        clippy::match_same_arms,
+        reason = "Structure match by opcode-group for legibility"
+    )]
     match (op, a_mode, b_mode) {
         // Dat and Nop always default to .F
         (Opcode::Nop | Opcode::Dat, ..) => Modifier::F,
@@ -522,5 +584,24 @@ mod tests {
             * test_utils::ADDR_MODES.len()
             * test_utils::ADDR_MODES.len();
         assert_eq!(all_instructions().count(), expected_number);
+    }
+
+    #[test]
+    fn all_instructions_have_unique_display() {
+        let a_field = 123;
+        let b_field = 456;
+        let instructions_displayed: Vec<String> =
+            test_utils::all_instructions()
+                .map(|instr| CompleteInstruction {
+                    instr,
+                    a_field,
+                    b_field,
+                })
+                .map(|x| x.to_string().to_owned())
+                .collect();
+
+        let unique_display_reprs =
+            instructions_displayed.iter().unique().count();
+        assert_eq!(unique_display_reprs, instructions_displayed.len());
     }
 }

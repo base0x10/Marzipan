@@ -75,7 +75,6 @@ impl Default for RelaxedWarrior {
 /// # Panics
 ///
 /// Will panic if `core_size` is less than 0 or greater than `u32::MAX`.
-#[allow(clippy::cast_precision_loss)]
 pub fn normalize<T, K>(value: K, core_size: T) -> FieldValue
 where
     T: Into<u64> + Copy,
