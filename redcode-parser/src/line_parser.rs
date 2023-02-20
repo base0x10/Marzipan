@@ -11,7 +11,8 @@ use redcode::{default_modifiers, Instruction, RelaxedCompleteInstruction};
 
 use crate::loadfile_primitives::{addr_mode, modifier, number, opcode};
 
-// Parses a '94 style instruction without consuming eol
+/// Parses the content of a line containing a '94 style instruction without
+/// consuming eol
 pub fn instr_94_line(
     input: &str,
 ) -> IResult<&str, RelaxedCompleteInstruction, VerboseError<&str>> {
@@ -61,7 +62,8 @@ pub fn instr_94_line(
     }
 }
 
-/// parses a `88 style instruction without consuming eol
+/// Parses the content of a line containing a '88 style instruction without
+/// consuming eol
 pub fn instr_88_line(
     input: &str,
 ) -> IResult<&str, RelaxedCompleteInstruction, VerboseError<&str>> {
@@ -136,7 +138,7 @@ pub fn end_line(input: &str) -> IResult<&str, Option<i64>, VerboseError<&str>> {
 }
 
 /// matches the content of an empty line without consuming an eol or EOF
-/// this MUST consume at least 
+/// This is explicitly allowed to not consume any input and return success
 pub fn empty_line(input: &str) -> IResult<&str, (), VerboseError<&str>> {
     map(space0, |_| ())(input)
 }

@@ -2,27 +2,42 @@ use nom::{
     branch::alt,
     bytes::complete::{tag, tag_no_case},
     character::complete::{i64, line_ending, space0},
-    combinator::map,
+    combinator::{fail, map},
     error::VerboseError,
-    sequence::{delimited},
+    sequence::delimited,
     IResult,
 };
 use redcode::{
-    AddrMode, AddrMode::*, Modifier, Modifier::*, Opcode, Opcode::*,
+    AddrMode,
+    AddrMode::{
+        Direct, Immediate, IndirectA, IndirectB, PostincA, PostincB, PredecA,
+        PredecB,
+    },
+    Modifier,
+    Modifier::{A, AB, B, BA, F, I, X},
+    Opcode,
+    Opcode::{
+        Add, Cmp, Dat, Div, Djn, Jmn, Jmp, Jmz, Ldp, Mod, Mov, Mul, Nop, Seq,
+        Slt, Sne, Spl, Stp, Sub,
+    },
 };
 
+/// Parse and consume a line ending from the input
 pub fn eol(input: &str) -> IResult<&str, &str, VerboseError<&str>> {
     line_ending(input)
 }
 
+/// Parse and consume an integer number from the input, optionally surrounded by
+/// whitespace, optionally prefixed by one of "+" or "-"
 pub fn number(input: &str) -> IResult<&str, i64, VerboseError<&str>> {
     delimited(space0, only_number, space0)(input)
 }
 
+/// Parse only a number and it's optional, single unary prefix of '+' or '-'
 fn only_number(input: &str) -> IResult<&str, i64, VerboseError<&str>> {
     if input.starts_with("+-") {
         // If we are prefixed by "+", we shouldn't also be prefixed by "-"
-        unimplemented!()
+        fail(input)
     } else if let Some(stripped_input) = input.strip_prefix('+') {
         // If we are prefixed by "+", parse w/o "+"
         i64(stripped_input)
@@ -32,7 +47,8 @@ fn only_number(input: &str) -> IResult<&str, i64, VerboseError<&str>> {
     }
 }
 
-// Consumes exactly one opcode and returns the enum
+/// Consumes exactly one opcode and returns the enum, without parsing or
+/// consuming any whitespace
 pub fn opcode(input: &str) -> IResult<&str, Opcode, VerboseError<&str>> {
     alt((
         map(tag_no_case("DAT"), |_| Dat),
@@ -57,6 +73,8 @@ pub fn opcode(input: &str) -> IResult<&str, Opcode, VerboseError<&str>> {
     ))(input)
 }
 
+/// Consumes exactly one address mode and returns the enum, without parsing or
+/// consuming any whitespace
 pub fn addr_mode(input: &str) -> IResult<&str, AddrMode, VerboseError<&str>> {
     alt((
         map(tag("#"), |_| Immediate),
@@ -70,6 +88,8 @@ pub fn addr_mode(input: &str) -> IResult<&str, AddrMode, VerboseError<&str>> {
     ))(input)
 }
 
+/// Consumes exactly one modifier and returns the enum, without parsing or
+/// consuming any whitespace
 pub fn modifier(input: &str) -> IResult<&str, Modifier, VerboseError<&str>> {
     alt((
         map(tag_no_case("AB"), |_| AB),
@@ -90,7 +110,7 @@ mod tests {
     fn check_opcode_parsing() {
         assert_eq!(opcode("DAT"), Ok(("", Dat)));
         assert_eq!(opcode("dAtfollowingcrap"), Ok(("followingcrap", Dat)));
-        assert!(!opcode(" dat").is_ok());
+        opcode(" dat").unwrap_err();
     }
 
     #[test]
@@ -100,13 +120,13 @@ mod tests {
             addr_mode("#followingcrap"),
             Ok(("followingcrap", Immediate))
         );
-        assert!(!addr_mode(" {").is_ok());
+        addr_mode(" {").unwrap_err();
     }
 
     #[test]
     fn check_modifier_parsing() {
         assert_eq!(modifier("BA"), Ok(("", BA)));
         assert_eq!(modifier("B A"), Ok((" A", B)));
-        assert!(!modifier(" a b").is_ok());
+        modifier(" a b").unwrap_err();
     }
 }
