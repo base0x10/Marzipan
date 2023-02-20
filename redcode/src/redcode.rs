@@ -391,7 +391,7 @@ pub struct Warrior {
     pub start: FieldValue,
     /// An optional identifier that warriors may optionally specify to indicate
     /// that it should share it's PSPACE with other warriors with the same pin.
-    pub pin: Option<u64>,
+    pub pin: Option<i64>,
 }
 
 impl Default for Warrior {
@@ -597,7 +597,7 @@ mod tests {
                     a_field,
                     b_field,
                 })
-                .map(|x| x.to_string().to_owned())
+                .map(|x| x.to_string())
                 .collect();
 
         let unique_display_reprs =

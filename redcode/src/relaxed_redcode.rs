@@ -39,7 +39,7 @@ pub struct RelaxedWarrior {
     pub start: i64,
     /// An optional identifier that warriors may optionally specify to indicate
     /// that it should share it's PSPACE with other warriors with the same pin.
-    pub pin: Option<u64>,
+    pub pin: Option<i64>,
 }
 
 impl RelaxedWarrior {
@@ -94,7 +94,7 @@ where
 #[cfg(test)]
 mod tests {
     use super::{RelaxedCompleteInstruction, RelaxedWarrior};
-    use crate::*;
+    use crate::Instruction;
 
     #[test]
     fn verify_positive_and_negative_conversions() {
@@ -103,7 +103,7 @@ mod tests {
             a_field: -10,
             b_field: 20,
         };
-        let normalized = i.normalize(15 as u32);
+        let normalized = i.normalize(15_u32);
         assert_eq!(normalized.a_field, 5);
         assert_eq!(normalized.b_field, 5);
     }
@@ -116,7 +116,7 @@ mod tests {
             a_field: 0,
             b_field: 0,
         };
-        let _normalized = i.normalize(0 as u32);
+        let _normalized = i.normalize(0_u32);
     }
 
     #[test]
@@ -142,7 +142,7 @@ mod tests {
             start: 0,
             pin: None,
         };
-        let _normalized = war.normalize(0 as u32);
+        let _normalized = war.normalize(0_u32);
     }
 
     #[test]
