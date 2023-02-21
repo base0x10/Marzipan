@@ -17,7 +17,6 @@ loadfile format, though it does not reject warriors using opcodes or modes
 that are not present in ICWS '88.  I haven't provided separate grammars for
 these.
 
-
 ## Notes
 
 Marzipan is _slightly_ more permissive than required by the ICWS '94
@@ -47,6 +46,7 @@ and pMARS REDCODE REFERENCE are resolved below.
  * Any number of `ORG` statements along with at most one `END` statement at the
    end of a file are accepted.  The last `ORG` or `END` statement with an
    argument used, or 0 if none are present.
+ * Multiple PIN statements are allowed, with only the last being used
  * Numbers have the same form for field values, PIN arguments,
    ORG optional arguments, and END optional arguments.
     * Must be representable as `i64` (twos complement 64 bit integers)
