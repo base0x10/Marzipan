@@ -29,6 +29,7 @@ impl RelaxedCompleteInstruction {
 
 /// A [`Warrior`] with [`RelaxedCompleteInstruction`]s that allow field values
 /// less than zero or greater than `core_size`
+#[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct RelaxedWarrior {
     /// A sequence of redcode instructions
     pub code: Vec<RelaxedCompleteInstruction>,
