@@ -160,4 +160,18 @@ mod tests {
         };
         let _normalized = war.normalize(u32::max as u64 + 1);
     }
+
+    #[test]
+    fn default_relaxed_instruction_equals_default_instruction() {
+        let i = RelaxedCompleteInstruction::default();
+        let normalized = i.normalize(8000_u32);
+        assert_eq!(normalized, crate::CompleteInstruction::default());
+    }
+
+    #[test]
+    fn default_relaxed_warrior_equals_default_warrior() {
+        let war = RelaxedWarrior::default();
+        let normalized = war.normalize(8000_u32);
+        assert_eq!(normalized, crate::Warrior::default());
+    }
 }
