@@ -384,6 +384,76 @@ mod tests {
     }
 
     #[test]
+    fn parse_instr_with_empty_line() {
+        let input = "\n\nDAT.AB #1, $2";
+        let parsed = parse_instr(input, ParseOptions::default());
+        assert_eq!(
+            parsed,
+            Ok(RelaxedCompleteInstruction {
+                instr: Instruction {
+                    opcode: Opcode::Dat,
+                    modifier: Modifier::AB,
+                    a_addr_mode: AddrMode::Immediate,
+                    b_addr_mode: AddrMode::Direct,
+                },
+                a_field: 1,
+                b_field: 2,
+            })
+        );
+    }
+
+    #[test]
+    fn parse_instruction_invalid_inputs() {
+        let invalid_inputs = vec![
+            ("", "input with no instruction should not be parsed"),
+            ("\n\n", "input with no instruction should not be parsed"),
+            (
+                "; comment text\nDAT.AB, #2, #4\n",
+                "instruction shouldn't be parsed if preceded by comment",
+            ),
+            (
+                "ORG 0\nDAT.AB #0, #0",
+                "instruction shouldn't be parsed if preceded by a pseudo-op",
+            ),
+            (
+                "PIN 0\nDAT.AB #0, #0",
+                "instruction shouldn't be parsed if preceded by a pseudo-op",
+            ),
+            (
+                "END 0\nDAT.AB #0, #0",
+                "instruction shouldn't be parsed if preceded by a pseudo-op",
+            ),
+        ];
+
+        for (input, msg) in invalid_inputs {
+            let parsed = parse_instr(input, ParseOptions::default());
+            assert!(
+                parsed.is_err(),
+                "Incorrectly parsed {input} successfully .  {msg}"
+            );
+        }
+    }
+
+    #[test]
+    fn parse_instr_with_trailing_data() {
+        let input = "DAT.AB #1, $2\n ; HERE IS SOME TRAILING COMMENT TEXT";
+        let parsed_allowing_trailing_data =
+            parse_instr(input, ParseOptions::default());
+        let parsed_disallowing_trailing_data =
+            parse_instr(input, ParseOptions::default().must_consume_all());
+        assert!(
+            parsed_allowing_trailing_data.is_ok(),
+            "Failed to parse instruction with trailing data {input}, reason: \
+             {parsed_allowing_trailing_data:?}"
+        );
+        assert!(
+            parsed_disallowing_trailing_data.is_err(),
+            "Incorrectly parsed an instruction with trailing data \
+             successfully {input}"
+        );
+    }
+
+    #[test]
     fn parse_simple_warrior() {
         let warrior = "DAT.AB #1, $2
                           SLT.F >3, }4
