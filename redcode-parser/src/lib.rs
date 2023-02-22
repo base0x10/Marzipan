@@ -85,15 +85,24 @@
 // require reason="..." #[allow(...)]
 #![feature(lint_reasons)]
 
-//! Parsing functions for CoreWar's redcode syntax.
+//! Parsers for CoreWar's redcode syntax.
 //!
-//! The exact grammar supported for loadfile parsing is specified in
-//! [`loadfile_grammar.md`](../loadfile_grammars.md).
+//! Currently, only loadfile parsing is supported.  Loadfiles may be parsed in
+//! either '88 or '94 format, and pMARS extension instructions and modifiers
+//! are supported.  
+//!
+//! For more information on the the syntax of the redcode language:
+//!  * The [94 ICWS Standard](https://corewar.co.uk/standards/icws94.htm)
+//!  * The pMARS [REDCODE
+//! REFERENCE](http://www.koth.org/info/pmars-redcode-94.txt)
+//!
+//! [`parser_grammar_specification`] contains the exact grammar.  The aim is to
+//! document the deviations from and interpretations of the standard.  The
+//! documents above are a better place to begin.
 
 /// Parsing functions for warriors and individual instructions either in '88 or
 /// '94 loadfile format
-mod loadfile_parser;
-pub use loadfile_parser::{parse, parse_instr};
+pub mod loadfile_parser;
 
 /// Internal functions which evaluate a the content of a single line, without
 /// consuming any newline characters
@@ -102,3 +111,7 @@ mod line_parser;
 /// Internal functions which parse well defined primitives from the redcode
 /// grammar.
 mod loadfile_primitives;
+
+/// A dummy module which contains the formal grammars parsed by this crate.
+#[doc = include_str!("parser_grammar_specification/loadfile_grammar.md")]
+pub mod parser_grammar_specification {}

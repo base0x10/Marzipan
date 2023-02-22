@@ -35,8 +35,9 @@ pub fn number(input: &str) -> IResult<&str, i64, VerboseError<&str>> {
 
 /// Parse only a number and it's optional, single unary prefix of '+' or '-'
 fn only_number(input: &str) -> IResult<&str, i64, VerboseError<&str>> {
-    if input.starts_with("+-") {
-        // If we are prefixed by "+", we shouldn't also be prefixed by "-"
+    if input.starts_with("+-") || input.starts_with("++") {
+        // If we are prefixed by "+", we shouldn't also be prefixed by another
+        // sign
         fail(input)
     } else if let Some(stripped_input) = input.strip_prefix('+') {
         // If we are prefixed by "+", parse w/o "+"
@@ -108,9 +109,16 @@ mod tests {
 
     #[test]
     fn check_opcode_parsing() {
-        assert_eq!(opcode("DAT"), Ok(("", Dat)));
-        assert_eq!(opcode("dAtfollowingcrap"), Ok(("followingcrap", Dat)));
-        opcode(" dat").unwrap_err();
+        assert_eq!(opcode("DAT"), Ok(("", Dat)), "parse nothing but an opcode");
+        assert_eq!(
+            opcode("dAtfollowingcrap"),
+            Ok(("followingcrap", Dat)),
+            "parse opcode with trailing text"
+        );
+        assert!(
+            opcode(" dat").is_err(),
+            "should fail to parse opcode with leading whitespace"
+        );
     }
 
     #[test]
@@ -120,13 +128,94 @@ mod tests {
             addr_mode("#followingcrap"),
             Ok(("followingcrap", Immediate))
         );
-        addr_mode(" {").unwrap_err();
+        assert!(
+            addr_mode(" #").is_err(),
+            "should fail to parse mode with leading whitespace"
+        );
     }
 
     #[test]
     fn check_modifier_parsing() {
         assert_eq!(modifier("BA"), Ok(("", BA)));
         assert_eq!(modifier("B A"), Ok((" A", B)));
-        modifier(" a b").unwrap_err();
+        assert!(
+            modifier(" B").is_err(),
+            "should fail to parse modifier with leading whitespace"
+        );
+    }
+
+    #[test]
+    fn check_number_parsing() {
+        let valid_test_cases = vec![
+            ("123", 123, "regular positive integer", ""),
+            ("+123", 123, "positive integer with leading \"+\"", ""),
+            ("-123", -123, "negative integer with leading \"-\"", ""),
+            (
+                "+123 ",
+                123,
+                "positive integer with leading \"+\" and trailing whitespace",
+                "",
+            ),
+            (
+                "-123 ",
+                -123,
+                "negative integer with leading \"-\" and trailing whitespace",
+                "",
+            ),
+            ("+0000", 0, "zero with leading zeros and leading \"+\"", ""),
+            ("-0000", 0, "zero with leading zeros and leading \"-\"", ""),
+            (
+                "123followingcrap",
+                123,
+                "integer with trailing test",
+                "followingcrap",
+            ),
+            (" 123", 123, "integer with leading whitespace", ""),
+            ("0xA", 0, "should parse as decimil and never as hex", "xA"),
+            (
+                "0b111",
+                0,
+                "should parse as decimil and never as binary",
+                "b111",
+            ),
+            (
+                "0o777",
+                0,
+                "should parse as decimil and never as octal",
+                "o777",
+            ),
+        ];
+
+        let invalid_test_cases = vec![
+            ("++1234", "should fail to parse two leading signs"),
+            ("+-1234", "should fail to parse two leading signs"),
+            ("--1234", "should fail to parse two leading signs"),
+            ("-+1234", "should fail to parse two leading signs"),
+            (
+                "+ 1234",
+                "should fail to parse with whitespace separating the sign and \
+                 number",
+            ),
+            (
+                "- 1234",
+                "should fail to parse with whitespace separating the sign and \
+                 number",
+            ),
+            ("", "should fail to parse empty input"),
+        ];
+
+        for (input, expected, desc, leftover) in valid_test_cases {
+            assert_eq!(
+                number(input),
+                Ok((leftover, expected)),
+                "should parse {} as {}",
+                desc,
+                expected
+            );
+        }
+
+        for (input, desc) in invalid_test_cases {
+            assert!(number(input).is_err(), "{}: input: {}", desc, input);
+        }
     }
 }
