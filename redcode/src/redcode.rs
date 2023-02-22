@@ -539,6 +539,7 @@ pub mod test_utils {
 
 #[cfg(test)]
 mod tests {
+    use coverage_helper::test;
     use itertools::Itertools;
 
     use super::*;

@@ -84,6 +84,8 @@
 )]
 // require reason="..." #[allow(...)]
 #![feature(lint_reasons)]
+// Prevent coverage reports from including lines in #[test]s
+#![cfg_attr(coverage_nightly, feature(no_coverage))]
 
 //! Parsers for CoreWar's redcode syntax.
 //!

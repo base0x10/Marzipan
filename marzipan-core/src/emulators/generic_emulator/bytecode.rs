@@ -39,6 +39,7 @@ mod tests {
     // bytecode implementations
     use std::collections::HashMap;
 
+    use coverage_helper::test;
     use rand::Rng;
     use redcode::{test_utils::all_instructions, Instruction};
 

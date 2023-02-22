@@ -94,6 +94,8 @@ where
 
 #[cfg(test)]
 mod tests {
+    use coverage_helper::test;
+
     use super::{RelaxedCompleteInstruction, RelaxedWarrior};
     use crate::Instruction;
 

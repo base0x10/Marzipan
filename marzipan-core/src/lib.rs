@@ -183,7 +183,6 @@
 //!    assignment of warriors to pspace PINs.  A MARS implementation is in
 //!    control of pspace persistance as well as the special warrior-specific `0`
 //!    location that typically represents the result of the previous round.
-
 // Make clippy as annoying as possible
 #![deny(
     // All typically enabled warnings are converted into errors
@@ -270,6 +269,8 @@
 )]
 // require reason="..." #[allow(...)]
 #![feature(lint_reasons)]
+// Prevent coverage reports from including lines in #[test]s
+#![cfg_attr(coverage_nightly, feature(no_coverage))]
 
 // Use no-std collections
 extern crate alloc;

@@ -20,7 +20,9 @@
     clippy::nursery,
     // Lints from "restriction" group - enforce a consistent if arbitrary style
     clippy::alloc_instead_of_core,
-    clippy::allow_attributes_without_reason,
+    // FPs for this lint
+    // https://github.com/rust-lang/rust-clippy/issues/10377
+    // clippy::allow_attributes_without_reason,
     clippy::arithmetic_side_effects,
     clippy::unnecessary_cast,
     clippy::as_underscore,
@@ -83,9 +85,15 @@
     clippy::unwrap_used,
     clippy::use_debug,
     clippy::verbose_file_reads,
-    clippy::wildcard_enum_match_arm
 )]
+#![allow(
+    clippy::needless_pass_by_value,
+    reason = "Internal Compiler Error bug workaround: https://github.com/rust-lang/rust-clippy/issues/10344"
+)]
+// require reason="..." #[allow(...)]
 #![feature(lint_reasons)]
+// Prevent coverage reports from including lines in #[test]s
+#![cfg_attr(coverage_nightly, feature(no_coverage))]
 
 // used to convert redcode enums to numerical values
 #[macro_use]

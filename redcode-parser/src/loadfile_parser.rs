@@ -318,6 +318,7 @@ fn parse_line(
 
 #[cfg(test)]
 mod tests {
+    use coverage_helper::test;
     use redcode::*;
 
     use super::*;
