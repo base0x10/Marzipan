@@ -52,7 +52,7 @@ pub trait EmulatorCore {
     /// aren't expected to be configurable through the [`EmulatorCore`] trait.
     /// Users of [`EmulatorCore`] might need to configure a new emulator or
     /// dispatch to different emulators depending on the required settings.
-    fn core_settings(self) -> CoreSettings;
+    fn core_settings(&self) -> CoreSettings;
 
     /// Query the value stored at an address in the core.
     ///
@@ -198,6 +198,7 @@ pub trait EmulatorCore {
 ///
 /// These are typically configured when an emulator is constructed and
 /// static through the lifetime of an emulator object.  
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct CoreSettings {
     /// Number of addresses in the core.  All fields are modulo `core_size`
     pub core_size: u64,

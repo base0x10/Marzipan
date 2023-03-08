@@ -233,8 +233,8 @@ impl EmulatorCore for Emulator {
     }
 
     /// Query per-core settings such as `bytecode_format` and `core_size`.
-    fn core_settings(self) -> CoreSettings {
-        self.config
+    fn core_settings(&self) -> CoreSettings {
+        self.config.clone()
     }
 
     /// Query the value stored at an address in the core.
