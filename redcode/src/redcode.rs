@@ -538,7 +538,6 @@ pub mod test_utils {
 }
 
 #[cfg(test)]
-#[cfg_attr(coverage, coverage(off))]
 mod tests {
     use itertools::Itertools;
 

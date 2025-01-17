@@ -156,7 +156,6 @@ pub fn empty_line(input: &str) -> IResult<&str, (), VerboseError<&str>> {
 }
 
 #[cfg(test)]
-#[cfg_attr(coverage, coverage(off))]
 mod tests {
     use redcode::{test_utils, CompleteInstruction};
 

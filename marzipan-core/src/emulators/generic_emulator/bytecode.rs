@@ -34,7 +34,6 @@ pub fn decode(bytecode: u32) -> Option<redcode::Instruction> {
 }
 
 #[cfg(test)]
-#[cfg_attr(coverage, coverage(off))]
 mod tests {
     // TODO(jespy) convert these to generic tests that can be used for any
     // bytecode implementations
