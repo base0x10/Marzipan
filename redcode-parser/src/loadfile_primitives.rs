@@ -104,9 +104,8 @@ pub fn modifier(input: &str) -> IResult<&str, Modifier, VerboseError<&str>> {
 }
 
 #[cfg(test)]
+#[cfg_attr(coverage, coverage(off))]
 mod tests {
-    use coverage_helper::test;
-
     use super::*;
 
     #[test]

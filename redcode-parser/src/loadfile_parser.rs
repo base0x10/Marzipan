@@ -317,8 +317,8 @@ fn parse_line(
 }
 
 #[cfg(test)]
+#[cfg_attr(coverage, coverage(off))]
 mod tests {
-    use coverage_helper::test;
     use redcode::*;
 
     use super::*;

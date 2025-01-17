@@ -93,9 +93,8 @@ where
 }
 
 #[cfg(test)]
+#[cfg_attr(coverage, coverage(off))]
 mod tests {
-    use coverage_helper::test;
-
     use super::{RelaxedCompleteInstruction, RelaxedWarrior};
     use crate::Instruction;
 
